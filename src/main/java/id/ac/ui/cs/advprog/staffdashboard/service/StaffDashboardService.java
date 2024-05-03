@@ -15,5 +15,6 @@ public interface StaffDashboardService<T> {
     Collection<T> findAll();
     T update(T request, String verdict);
     T findById(String id);
+    void deleteById(String id);
 
 }

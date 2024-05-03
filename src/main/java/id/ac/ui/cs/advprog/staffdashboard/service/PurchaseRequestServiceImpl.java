@@ -32,4 +32,9 @@ public class PurchaseRequestServiceImpl implements StaffDashboardService<Purchas
     public PurchaseRequest findById(String id) {
         return purchaseRequestRepository.findPurchaseById(id);
     }
+
+    @Override
+    public void deleteById(String id){
+        purchaseRequestRepository.deletePurchase(id);
+    }
 }

@@ -6,6 +6,8 @@ import id.ac.ui.cs.advprog.staffdashboard.model.PurchaseRequest;
 import id.ac.ui.cs.advprog.staffdashboard.model.TopupRequest;
 import id.ac.ui.cs.advprog.staffdashboard.service.StaffDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -44,8 +46,10 @@ public class StaffDashboardController {
     public ResponseEntity<String> updateTopupRequest(@RequestHeader("Authorization") String token, @PathVariable String topupId, @PathVariable String Status) {
         try{
 
-            HashMap<String, String> user = getUserFromAuth(token);
-            if (!user.get("type").equals("STAFF")) {
+            String userRole = getRoleFromToken(token);
+
+
+            if (!userRole.equals("STAFF")) {
                 throw new Exception("Non STAFF can't Update Status for Requests");
             }
 
@@ -53,9 +57,11 @@ public class StaffDashboardController {
 
             TopupRequest updatedTopUp = topupService.update(topupService.findById(topupId), Status);
             String topUpJson = objectMapper.writeValueAsString(updatedTopUp);
+            topupService.deleteById(topupId);
             return ResponseEntity.ok(topUpJson);
 
         } catch(Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Failed to process payment requests.");
 
         }
@@ -69,6 +75,8 @@ public class StaffDashboardController {
         return ResponseEntity.ok(topUpJson);
     }
 
+
+
     private void updateCurrentTopUps(String token) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -78,15 +86,16 @@ public class StaffDashboardController {
         ResponseEntity<String> response = restTemplate.exchange("http://localhost:8082/payment-request/get-all", HttpMethod.GET, httpEntity, String.class);
 
         String responseBody = response.getBody();
+        JSONObject outerObject= new JSONObject(responseBody);
+        JSONArray paymentResponse= outerObject.getJSONArray("paymentsRequest");
+
+
 
         try {
-            List<TopupRequest> topupRequestList = objectMapper.readValue(
-                    responseBody,
-                    new TypeReference<List<TopupRequest>>() {}
-            );
-            for (TopupRequest tprq : topupRequestList ) {
-                topupService.add(tprq);
-                System.out.println(tprq);
+            for (int i=0; i<paymentResponse.length(); i++){
+                JSONObject process = paymentResponse.getJSONObject(i);
+                TopupRequest tempTopUpRequest = objectMapper.readValue(process.toString(), TopupRequest.class);
+                topupService.add(tempTopUpRequest);
             }
 
         } catch (Exception e) {
@@ -94,16 +103,24 @@ public class StaffDashboardController {
             System.out.println("Something went Wrong");
         }
     }
-    private HashMap<String, String> getUserFromAuth(String token) throws Exception{
+    private String getUsernameFromToken(String token) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        headers.add("Authorization", token);
         HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-        ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/api/auth/get-user", HttpMethod.GET, httpEntity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/user/get-username", HttpMethod.GET, httpEntity, String.class);
 
+        return response.getBody();
+    }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(response.getBody(), new TypeReference<HashMap<String, String>>() {});
+    private String getRoleFromToken(String token) throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
+        ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/user/get-role", HttpMethod.GET, httpEntity, String.class);
+
+        return response.getBody();
     }
 
 }

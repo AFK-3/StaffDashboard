@@ -37,4 +37,9 @@ public class TopupRequestServiceImpl implements StaffDashboardService<TopupReque
     public TopupRequest findById(String id) {
         return topupRequestRepository.findTopupById(id);
     }
+
+    @Override
+    public void deleteById(String id) {
+        topupRequestRepository.deleteTopup(id);
+    }
 }
