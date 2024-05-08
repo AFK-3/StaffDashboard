@@ -7,8 +7,11 @@ import jakarta.persistence.*;
 public class Listing {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column
+    private String Id;
+
+    @Column
+    private Integer Amount;
 
 
 
