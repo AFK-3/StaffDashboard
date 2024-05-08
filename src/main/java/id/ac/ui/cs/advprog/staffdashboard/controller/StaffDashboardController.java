@@ -68,13 +68,21 @@ public class StaffDashboardController {
     }
 
     @GetMapping("/get-from-payment")
-    public ResponseEntity<String> testGet(@RequestHeader("Authorization") String token) throws Exception {
+    public ResponseEntity<String> getFromPayment(@RequestHeader("Authorization") String token) throws Exception {
         updateCurrentTopUps(token);
         Collection<TopupRequest> updatedTopUp = topupService.findAll();
         String topUpJson = objectMapper.writeValueAsString(updatedTopUp);
         return ResponseEntity.ok(topUpJson);
     }
 
+    @GetMapping("/get-from-buy")
+    public ResponseEntity<String> getFromBuy(@RequestHeader("Authorization") String token) throws Exception {
+        updateCurrentPurchases(token);
+        Collection<PurchaseRequest> updatedPurchase = purchaseService.findAll();
+        String purchaseJson= objectMapper.writeValueAsString(updatedPurchase);
+        return ResponseEntity.ok(purchaseJson);
+
+    }
 
 
     private void updateCurrentTopUps(String token) throws Exception {
@@ -96,6 +104,33 @@ public class StaffDashboardController {
                 JSONObject process = paymentResponse.getJSONObject(i);
                 TopupRequest tempTopUpRequest = objectMapper.readValue(process.toString(), TopupRequest.class);
                 topupService.add(tempTopUpRequest);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println("Something went Wrong");
+        }
+    }
+
+    private void updateCurrentPurchases(String token) throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+        ObjectMapper objectMapper = new ObjectMapper();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
+        ResponseEntity<String> response = restTemplate.exchange("http://localhost:8083/transaction", HttpMethod.GET, httpEntity, String.class);
+
+        String responseBody = response.getBody();
+        JSONArray transactionResponse =new JSONArray(responseBody);
+
+
+
+        try {
+            for (int i=0; i<transactionResponse.length(); i++){
+                JSONObject process = transactionResponse.getJSONObject(i);
+                PurchaseRequest tempPurchaseRequest = objectMapper.readValue(process.toString(), PurchaseRequest.class);
+                purchaseService.add(tempPurchaseRequest);
+                System.out.println(tempPurchaseRequest.toString());
             }
 
         } catch (Exception e) {

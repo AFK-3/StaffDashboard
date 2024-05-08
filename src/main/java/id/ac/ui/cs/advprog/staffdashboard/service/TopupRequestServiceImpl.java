@@ -20,26 +20,27 @@ public class TopupRequestServiceImpl implements StaffDashboardService<TopupReque
 
     @Override
     public TopupRequest add(TopupRequest request) {
-        return topupRequestRepository.put(request);
+        return topupRequestRepository.save(request);
     }
     @Override
     public Collection<TopupRequest> findAll() {
-        return topupRequestRepository.findAllTopUps();
+        return topupRequestRepository.findAll();
     }
 
     @Override
     public TopupRequest update(TopupRequest request, String verdict) {
         request.setPaymentStatus(verdict);
-        return topupRequestRepository.put(request);
+        return topupRequestRepository.save(request);
     }
 
     @Override
     public TopupRequest findById(String id) {
-        return topupRequestRepository.findTopupById(id);
+        return topupRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Top up request not found with id: " + id));
     }
 
     @Override
     public void deleteById(String id) {
-        topupRequestRepository.deleteTopup(id);
+        topupRequestRepository.deleteById(id);
     }
 }

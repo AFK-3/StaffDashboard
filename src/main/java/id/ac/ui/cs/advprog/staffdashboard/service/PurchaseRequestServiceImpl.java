@@ -15,26 +15,29 @@ public class PurchaseRequestServiceImpl implements StaffDashboardService<Purchas
 
     @Override
     public PurchaseRequest add(PurchaseRequest request) {
-        return purchaseRequestRepository.put(request);
+        return purchaseRequestRepository.save(request);
     }
     @Override
     public Collection<PurchaseRequest> findAll() {
-        return purchaseRequestRepository.findAllPurchases();
+        return purchaseRequestRepository.findAll();
     }
 
     @Override
     public PurchaseRequest update(PurchaseRequest request, String verdict) {
         request.setStatus(verdict);
-        return purchaseRequestRepository.put(request);
+        return purchaseRequestRepository.save(request);
     }
 
     @Override
     public PurchaseRequest findById(String id) {
-        return purchaseRequestRepository.findPurchaseById(id);
+
+        return purchaseRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Purchase request not found with id: " + id));
     }
+
 
     @Override
     public void deleteById(String id){
-        purchaseRequestRepository.deletePurchase(id);
+        purchaseRequestRepository.deleteById(id);
     }
 }
