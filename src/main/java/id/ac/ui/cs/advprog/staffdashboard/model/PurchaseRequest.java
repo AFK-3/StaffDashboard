@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -15,7 +14,7 @@ import java.util.Map;
 public class PurchaseRequest {
 
     @Id
-    @Column(name = "transaction_id")
+    @Column(name = "transactionId")
     private String transactionId;
 
     @Column(name = "username")
@@ -24,13 +23,15 @@ public class PurchaseRequest {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "delivery_location")
+    @Column(name = "deliveryLocation")
     private String deliveryLocation;
 
+    @ElementCollection
+    @CollectionTable(name = "listingsTransaction", joinColumns = @JoinColumn(name = "transactionId"))
+    @MapKeyColumn(name = "listingId")
+    @Column(name = "quantity")
+    private Map<String,Integer> listings;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "purchaseRequest")
-    private List<Listing> listings;
-
-    @Column(name = "total_price")
+    @Column(name = "totalPrice")
     private long totalPrice;
 }
