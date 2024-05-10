@@ -13,8 +13,7 @@ import java.util.UUID;
 public interface StaffDashboardService<T> {
     T add(T request);
     Collection<T> findAll();
-    T update(T request, String verdict);
     T findById(String id);
     void deleteById(String id);
-
+    Boolean authenticateStaff(String token) throws Exception;
 }
