@@ -71,6 +71,6 @@ public abstract class RequestServiceImpl<T> implements StaffDashboardService<T>{
         return response.getBody();
     }
 
-    public abstract T updateStatus(T request, String verdict);
+    public abstract T updateStatus(T request, String verdict, String token);
     public abstract Collection<T> collectRequest(String token) throws Exception;
 }

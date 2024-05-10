@@ -28,9 +28,16 @@ public class TopUpRequestServiceImpl extends RequestServiceImpl<TopupRequest> {
     }
 
     @Override
-    public TopupRequest updateStatus(TopupRequest request, String verdict) {
-        request.setPaymentStatus(verdict);
-        return requestRepository.save(request);
+    public TopupRequest updateStatus(TopupRequest request, String verdict, String token) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
+        ResponseEntity<String> response = restTemplate.exchange(String.format("%s/respond/%s/%s",paymentUrl,request.getId().toString(),verdict), HttpMethod.PATCH, httpEntity, String.class);
+
+        System.out.println(response.getBody());
+        requestRepository.delete(request);
+        return request;
     }
 
     @Override

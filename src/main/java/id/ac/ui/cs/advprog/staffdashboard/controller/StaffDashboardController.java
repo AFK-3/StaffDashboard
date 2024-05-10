@@ -48,20 +48,31 @@ public class StaffDashboardController {
         try{
 
             if(!topupService.authenticateStaff(token)){
-                return ResponseEntity.status(500).body("Failed to process payment requests.");
-            }
+                return ResponseEntity.status(500).body("Unauthorized");}
 
-
-
-            TopupRequest updatedTopUp = topupService.updateStatus(topupService.findById(topupId), Status);
+            TopupRequest updatedTopUp = topupService.updateStatus(topupService.findById(topupId), Status, token);
             String topUpJson = objectMapper.writeValueAsString(updatedTopUp);
-            topupService.deleteById(topupId);
             return ResponseEntity.ok(topUpJson);
 
         } catch(Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Failed to process payment requests.");
+        }
+    }
 
+    @PostMapping("/updatePurchase/{purchaseId}/{Status}")
+    public ResponseEntity<String> updatePurchaseRequest(@RequestHeader("Authorization") String token, @PathVariable String purchaseId, @PathVariable String Status) {
+        try{
+            if(!topupService.authenticateStaff(token)){
+                return ResponseEntity.status(500).body("Unauthorized");}
+
+            PurchaseRequest updatedPurchase = purchaseService.updateStatus(purchaseService.findById(purchaseId), Status, token);
+            String topUpJson = objectMapper.writeValueAsString(updatedPurchase);
+            return ResponseEntity.ok(topUpJson);
+
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(500).body("Failed to process payment requests.");
         }
     }
 
@@ -79,14 +90,6 @@ public class StaffDashboardController {
         return ResponseEntity.ok(purchaseJson);
 
     }
-
-
-
-
-
-
-
-
 
 
 }

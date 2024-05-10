@@ -11,6 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
@@ -19,6 +21,7 @@ import java.util.Collection;
 public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseRequest> {
 
     private final String buyUrl = "http://localhost:8083";
+    private  final String reviewRatingUrl= "http://localhost:8084";
 
     @Autowired
     public void PurchaseRequestService(PurchaseRequestRepository purchaseRepository) {
@@ -26,9 +29,20 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
     }
 
     @Override
-    public PurchaseRequest updateStatus(PurchaseRequest request, String verdict) {
-        request.setStatus(verdict);
-        return requestRepository.save(request);
+    public PurchaseRequest updateStatus(PurchaseRequest request, String verdict,String token) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("status", verdict);
+
+        ResponseEntity<String> response = restTemplate.exchange(String.format("%s/transaction/%s",buyUrl,request.getTransactionId().toString()),
+                HttpMethod.PATCH, httpEntity, String.class,params);
+
+        System.out.println(response.getBody());
+        requestRepository.delete(request);
+        return  request;
     }
 
     @Override
@@ -60,4 +74,5 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
 
         return null;
     }
+
 }
