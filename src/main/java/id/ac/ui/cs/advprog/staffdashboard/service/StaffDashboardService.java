@@ -15,5 +15,6 @@ public interface StaffDashboardService<T> {
     Collection<T> findAll();
     T findById(String id);
     void deleteById(String id);
+    void deleteAll();
     Boolean authenticateStaff(String token) throws Exception;
 }

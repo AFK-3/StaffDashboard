@@ -6,16 +6,13 @@ import id.ac.ui.cs.advprog.staffdashboard.repository.PurchaseRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
+import java.util.*;
 
 @Service
 public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseRequest> {
@@ -73,6 +70,35 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
         }
 
         return null;
+    }
+
+    @Override
+    public void allowToReview(PurchaseRequest p, String verdict, String token) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        List<String> listingIds = new ArrayList<>(p.getListings().keySet());
+
+        // Prepare the request body as a Map
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("listingId", listingIds);
+        requestBody.put("username", p.getUsername());
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+        try {
+            // Send the POST request
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    reviewRatingUrl + "/allowUserToReview",
+                    HttpMethod.POST,
+                    requestEntity,
+                    Void.class
+            );
+
+        } catch (Exception e) {
+            System.err.println("Error occurred while sending allow to review request: " + e.getMessage());
+
+        }
     }
 
 }

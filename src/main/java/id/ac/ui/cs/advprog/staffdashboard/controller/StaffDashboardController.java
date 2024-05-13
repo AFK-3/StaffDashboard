@@ -50,7 +50,7 @@ public class StaffDashboardController {
             if(!topupService.authenticateStaff(token)){
                 return ResponseEntity.status(500).body("Unauthorized");}
 
-            TopupRequest updatedTopUp = topupService.updateStatus(topupService.findById(topupId), Status, token);
+            TopupRequest updatedTopUp = topupService.updateStatusProcess(topupService.findById(topupId), Status, token);
             String topUpJson = objectMapper.writeValueAsString(updatedTopUp);
             return ResponseEntity.ok(topUpJson);
 
@@ -66,7 +66,7 @@ public class StaffDashboardController {
             if(!topupService.authenticateStaff(token)){
                 return ResponseEntity.status(500).body("Unauthorized");}
 
-            PurchaseRequest updatedPurchase = purchaseService.updateStatus(purchaseService.findById(purchaseId), Status, token);
+            PurchaseRequest updatedPurchase = purchaseService.updateStatusProcess(purchaseService.findById(purchaseId), Status, token);
             String topUpJson = objectMapper.writeValueAsString(updatedPurchase);
             return ResponseEntity.ok(topUpJson);
 

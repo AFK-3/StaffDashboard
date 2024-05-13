@@ -26,9 +26,6 @@ public abstract class RequestServiceImpl<T> implements StaffDashboardService<T>{
     @Override
     public Collection<T> findAll(){return requestRepository.findAll();}
 
-
-
-
     @Override
     public T findById(String id) {
         return requestRepository.findById(id).orElse(null);
@@ -39,6 +36,8 @@ public abstract class RequestServiceImpl<T> implements StaffDashboardService<T>{
     public void deleteById(String id){
         requestRepository.deleteById(id);
     }
+    @Override
+    public void deleteAll() {requestRepository.deleteAll();}
 
     @Override
     public Boolean authenticateStaff(String token) throws Exception {
@@ -71,6 +70,20 @@ public abstract class RequestServiceImpl<T> implements StaffDashboardService<T>{
         return response.getBody();
     }
 
+    public T updateStatusProcess(T request, String verdict, String token) throws Exception {
+        try{
+            deleteAll();
+            collectRequest(token);
+            allowToReview(request,verdict,token);
+            return  updateStatus(request,verdict,token);
+
+        }catch(Exception e){
+            System.err.println("An error occurred during updateStatusProcess: " + e.getMessage());
+            throw e;
+        }
+    }
+
     public abstract T updateStatus(T request, String verdict, String token);
     public abstract Collection<T> collectRequest(String token) throws Exception;
+    public void allowToReview(T request,String verdict,String token){}
 }
