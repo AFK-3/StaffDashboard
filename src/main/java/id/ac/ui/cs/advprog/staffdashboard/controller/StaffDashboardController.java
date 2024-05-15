@@ -9,10 +9,7 @@ import id.ac.ui.cs.advprog.staffdashboard.service.StaffDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +45,7 @@ public class StaffDashboardController {
     public ResponseEntity<String> updateTopupRequest(@RequestHeader("Authorization") String token, @PathVariable String topupId, @PathVariable String Status) {
         try{
             if(!topupService.authenticateStaff(token)){
-                return ResponseEntity.status(500).body("Unauthorized");}
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Role must be STAFF");}
 
             topupService.collectRequest(token);
             TopupRequest findRequest= topupService.findById(topupId);
@@ -58,12 +55,12 @@ public class StaffDashboardController {
                 String topUpJson = objectMapper.writeValueAsString(updatedTopUp);
                 return ResponseEntity.ok(topUpJson);}
             else{
-                return ResponseEntity.status(500).body("Reuqst not found");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not find the Request");
             }
 
         } catch(Exception e) {
             System.out.println(e.getMessage());
-            return ResponseEntity.status(500).body("Failed to process payment requests.");
+            return ResponseEntity.status(500).body("Failed to process topup requests.");
         }
     }
 
@@ -71,27 +68,29 @@ public class StaffDashboardController {
     public ResponseEntity<String> updatePurchaseRequest(@RequestHeader("Authorization") String token, @PathVariable String purchaseId, @PathVariable String Status) {
         try{
 
-            //if(!purchaseService.authenticateStaff(token)){
-               // return ResponseEntity.status(500).body("Unauthorized");}
+            if(!purchaseService.authenticateStaff(token)){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Role must be STAFF");}
+
             purchaseService.collectRequest(token);
             PurchaseRequest findRequest= purchaseService.findById(purchaseId);
-            System.out.println(findRequest);
+
             if(findRequest!=null){
                 PurchaseRequest updatedPurchase = purchaseService.updateStatusProcess(findRequest, Status, token);
                 String topUpJson = objectMapper.writeValueAsString(updatedPurchase);
                 return ResponseEntity.ok(topUpJson);}
             else{
-                return ResponseEntity.status(500).body("Request not found");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not find the Request");
             }
         } catch(Exception e) {
-            e.printStackTrace();
             System.out.println(e.getMessage());
-            return ResponseEntity.status(500).body("Failed to process payment requests.");
+            return ResponseEntity.status(500).body("Failed to process transaction requests.");
         }
     }
 
     @GetMapping("/get-from-payment")
     public ResponseEntity<String> getFromPayment(@RequestHeader("Authorization") String token) throws Exception {
+        if(!topupService.authenticateStaff(token)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Role must be STAFF");}
         Collection<TopupRequest> updatedTopUp = topupService.collectRequest(token);
         String topUpJson = objectMapper.writeValueAsString(updatedTopUp);
 
@@ -100,6 +99,8 @@ public class StaffDashboardController {
 
     @GetMapping("/get-from-buy")
     public ResponseEntity<String> getFromBuy(@RequestHeader("Authorization") String token) throws Exception {
+        if(!purchaseService.authenticateStaff(token)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Role must be STAFF");}
         Collection<PurchaseRequest> updatedPurchase = purchaseService.collectRequest(token);
         String purchaseJson= objectMapper.writeValueAsString(updatedPurchase);
         return ResponseEntity.ok(purchaseJson);
