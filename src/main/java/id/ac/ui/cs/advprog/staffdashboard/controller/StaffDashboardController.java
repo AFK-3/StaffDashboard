@@ -70,8 +70,9 @@ public class StaffDashboardController {
     @PostMapping("/updatePurchase/{purchaseId}/{Status}")
     public ResponseEntity<String> updatePurchaseRequest(@RequestHeader("Authorization") String token, @PathVariable String purchaseId, @PathVariable String Status) {
         try{
-            if(!purchaseService.authenticateStaff(token)){
-                return ResponseEntity.status(500).body("Unauthorized");}
+
+            //if(!purchaseService.authenticateStaff(token)){
+               // return ResponseEntity.status(500).body("Unauthorized");}
             purchaseService.collectRequest(token);
             PurchaseRequest findRequest= purchaseService.findById(purchaseId);
             System.out.println(findRequest);
@@ -103,6 +104,13 @@ public class StaffDashboardController {
         String purchaseJson= objectMapper.writeValueAsString(updatedPurchase);
         return ResponseEntity.ok(purchaseJson);
 
+    }
+
+    @DeleteMapping("/delete-all")
+    public String deleteAllPurchaseRequests() {
+        topupService.deleteAll();
+        purchaseService.deleteAll();
+        return "Deletion started";
     }
 
 

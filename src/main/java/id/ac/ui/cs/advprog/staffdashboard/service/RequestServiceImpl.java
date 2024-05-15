@@ -6,9 +6,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class RequestServiceImpl<T> implements StaffDashboardService<T>{
 
@@ -36,8 +38,13 @@ public abstract class RequestServiceImpl<T> implements StaffDashboardService<T>{
     public void deleteById(String id){
         requestRepository.deleteById(id);
     }
+
     @Override
-    public void deleteAll() {requestRepository.deleteAll();}
+    @Async
+    public CompletableFuture<Void> deleteAll() {
+        requestRepository.deleteAll();
+        return CompletableFuture.completedFuture(null);
+    }
 
     @Override
     public Boolean authenticateStaff(String token) throws Exception {

@@ -94,7 +94,7 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
                     requestEntity,
                     Void.class
             );
-
+            System.out.println(response.getBody());
         } catch (Exception e) {
             System.err.println("Error occurred while sending allow to review request: " + e.getMessage());
 
