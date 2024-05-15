@@ -30,15 +30,15 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
-        HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
+
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("status", verdict);
-
-        ResponseEntity<String> response = restTemplate.exchange(String.format("%s/transaction/%s",buyUrl,request.getTransactionId().toString()),
-                HttpMethod.PATCH, httpEntity, String.class,params);
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
+        ResponseEntity<String> response = restTemplate.exchange(String.format("%s/transaction/%s",buyUrl,request.getTransactionId()),
+                HttpMethod.PUT, httpEntity, String.class);
 
         System.out.println(response.getBody());
-        requestRepository.delete(request);
+        this.requestRepository.deleteById(request.getTransactionId());
         return  request;
     }
 
@@ -60,7 +60,7 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
             for (int i=0; i<transactionResponse.length(); i++){
                 JSONObject process = transactionResponse.getJSONObject(i);
                 PurchaseRequest tempPurchaseRequest = objectMapper.readValue(process.toString(), PurchaseRequest.class);
-                requestRepository.save(tempPurchaseRequest);
+                this.requestRepository.save(tempPurchaseRequest);
             }
             return requestRepository.findAll();
 

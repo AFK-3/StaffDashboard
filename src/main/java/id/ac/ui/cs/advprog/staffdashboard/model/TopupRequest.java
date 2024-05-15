@@ -13,8 +13,8 @@ import java.util.UUID;
 public class TopupRequest {
 
     @Id
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
-    private UUID id;
+    @Column(name = "id_payment")
+    private String id;
 
     @Column(name = "payment_status")
     private String paymentStatus;

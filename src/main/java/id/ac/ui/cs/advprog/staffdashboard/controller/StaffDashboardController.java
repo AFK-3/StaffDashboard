@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/")
@@ -46,13 +47,19 @@ public class StaffDashboardController {
     @PostMapping("/updateTopup/{topupId}/{Status}")
     public ResponseEntity<String> updateTopupRequest(@RequestHeader("Authorization") String token, @PathVariable String topupId, @PathVariable String Status) {
         try{
-
             if(!topupService.authenticateStaff(token)){
                 return ResponseEntity.status(500).body("Unauthorized");}
 
-            TopupRequest updatedTopUp = topupService.updateStatusProcess(topupService.findById(topupId), Status, token);
-            String topUpJson = objectMapper.writeValueAsString(updatedTopUp);
-            return ResponseEntity.ok(topUpJson);
+            topupService.collectRequest(token);
+            TopupRequest findRequest= topupService.findById(topupId);
+
+            if(findRequest!=null){
+                TopupRequest updatedTopUp = topupService.updateStatusProcess(topupService.findById(topupId), Status, token);
+                String topUpJson = objectMapper.writeValueAsString(updatedTopUp);
+                return ResponseEntity.ok(topUpJson);}
+            else{
+                return ResponseEntity.status(500).body("Reuqst not found");
+            }
 
         } catch(Exception e) {
             System.out.println(e.getMessage());
@@ -63,14 +70,20 @@ public class StaffDashboardController {
     @PostMapping("/updatePurchase/{purchaseId}/{Status}")
     public ResponseEntity<String> updatePurchaseRequest(@RequestHeader("Authorization") String token, @PathVariable String purchaseId, @PathVariable String Status) {
         try{
-            if(!topupService.authenticateStaff(token)){
+            if(!purchaseService.authenticateStaff(token)){
                 return ResponseEntity.status(500).body("Unauthorized");}
-
-            PurchaseRequest updatedPurchase = purchaseService.updateStatusProcess(purchaseService.findById(purchaseId), Status, token);
-            String topUpJson = objectMapper.writeValueAsString(updatedPurchase);
-            return ResponseEntity.ok(topUpJson);
-
+            purchaseService.collectRequest(token);
+            PurchaseRequest findRequest= purchaseService.findById(purchaseId);
+            System.out.println(findRequest);
+            if(findRequest!=null){
+                PurchaseRequest updatedPurchase = purchaseService.updateStatusProcess(findRequest, Status, token);
+                String topUpJson = objectMapper.writeValueAsString(updatedPurchase);
+                return ResponseEntity.ok(topUpJson);}
+            else{
+                return ResponseEntity.status(500).body("Request not found");
+            }
         } catch(Exception e) {
+            e.printStackTrace();
             System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Failed to process payment requests.");
         }
@@ -80,6 +93,7 @@ public class StaffDashboardController {
     public ResponseEntity<String> getFromPayment(@RequestHeader("Authorization") String token) throws Exception {
         Collection<TopupRequest> updatedTopUp = topupService.collectRequest(token);
         String topUpJson = objectMapper.writeValueAsString(updatedTopUp);
+
         return ResponseEntity.ok(topUpJson);
     }
 

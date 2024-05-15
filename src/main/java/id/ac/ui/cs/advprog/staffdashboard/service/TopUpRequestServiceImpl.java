@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.staffdashboard.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import id.ac.ui.cs.advprog.staffdashboard.model.PurchaseRequest;
 import id.ac.ui.cs.advprog.staffdashboard.model.TopupRequest;
 import id.ac.ui.cs.advprog.staffdashboard.repository.TopupRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +32,10 @@ public class TopUpRequestServiceImpl extends RequestServiceImpl<TopupRequest> {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-        ResponseEntity<String> response = restTemplate.exchange(String.format("%s/respond/%s/%s",paymentUrl,request.getId().toString(),verdict), HttpMethod.PATCH, httpEntity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(String.format("%s/respond/%s/%s",paymentUrl,request.getId(),verdict), HttpMethod.PATCH, httpEntity, String.class);
 
         System.out.println(response.getBody());
-        requestRepository.delete(request);
+        this.requestRepository.delete(request);
         return request;
     }
 
@@ -59,7 +58,8 @@ public class TopUpRequestServiceImpl extends RequestServiceImpl<TopupRequest> {
             for (int i=0; i<paymentResponse.length(); i++){
                 JSONObject process = paymentResponse.getJSONObject(i);
                 TopupRequest tempTopUpRequest = objectMapper.readValue(process.toString(), TopupRequest.class);
-                requestRepository.save(tempTopUpRequest);
+                System.out.println(tempTopUpRequest.getId());
+                this.requestRepository.save(tempTopUpRequest);
             }
 
             return this.requestRepository.findAll();
@@ -70,5 +70,6 @@ public class TopUpRequestServiceImpl extends RequestServiceImpl<TopupRequest> {
         }
         return null;
     }
+
 
 }
