@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.staffdashboard.model.TopupRequest;
 import id.ac.ui.cs.advprog.staffdashboard.repository.TopupRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -19,7 +20,12 @@ import java.util.Collection;
 @Service
 public class TopUpRequestServiceImpl extends RequestServiceImpl<TopupRequest> {
 
-    private final String paymentUrl = "http://localhost:8082";
+    public static String paymentUrl;
+
+    @Value("${payment.url}")
+    public void setPaymentUrl(String url){
+        paymentUrl=url;
+    }
 
     @Autowired
     public void topUpRequestService(TopupRequestRepository topUpRepository) {

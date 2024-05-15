@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.staffdashboard.model.PurchaseRequest;
 import id.ac.ui.cs.advprog.staffdashboard.repository.PurchaseRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.*;
@@ -17,8 +18,18 @@ import java.util.*;
 @Service
 public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseRequest> {
 
-    private final String buyUrl = "http://localhost:8083";
-    private  final String reviewRatingUrl= "http://localhost:8084";
+    public static String buyUrl;
+    public static String reviewRatingUrl;
+
+    @Value("${buy.url}")
+    public void setTransactionUrl(String url){
+        buyUrl=url;
+    }
+
+    @Value("${review.url}")
+    public void setReviewRatingUrl(String url){
+        reviewRatingUrl=url;
+    }
 
     @Autowired
     public void PurchaseRequestService(PurchaseRequestRepository purchaseRepository) {

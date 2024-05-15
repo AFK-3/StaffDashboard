@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.staffdashboard.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpEntity;
@@ -18,7 +19,12 @@ public abstract class RequestServiceImpl<T> implements StaffDashboardService<T>{
     protected JpaRepository<T, String> requestRepository;
 
     //Change url depending  authentication source url
-    private final String authUrl = "http://localhost:8080";
+    public static String authUrl;
+
+    @Value("${auth.url}")
+    public void setAuthUrl(String url){
+        authUrl=url;
+    }
 
     @Override
     public T add(T request){
