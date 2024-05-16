@@ -10,7 +10,7 @@ public class TopupRequestTest {
     @Test
     public void testTopupRequestProperties() {
         // Create a sample UUID for the ID field
-        UUID id = UUID.randomUUID();
+        String id="Hewwo";
 
         // Create a sample TopupRequest instance
         TopupRequest topupRequest = new TopupRequest();
