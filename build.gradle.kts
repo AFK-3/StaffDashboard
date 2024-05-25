@@ -3,6 +3,7 @@ plugins {
 	jacoco
 	id("org.springframework.boot") version "3.2.4"
 	id("io.spring.dependency-management") version "1.1.4"
+	id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "id.ac.ui.cs.advprog"
@@ -22,6 +23,18 @@ repositories {
 	mavenCentral()
 }
 
+sonar {
+	properties {
+		property("sonar.projectKey", "AFK-3_StaffDashboard")
+		property("sonar.organization", "afk-3")
+		property("sonar.host.url", "https://sonarcloud.io")
+
+
+		property ("sonar.test.exclusions", "src/main/java/id/ac/ui/cs/advprog/staffdashboard/service/TopUpRequestServiceImpl.java")
+		property ("sonar.test.exclusions", "src/main/java/id/ac/ui/cs/advprog/staffdashboard/service/PurchaseRequestServiceImpl.java")
+	}
+}
+
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -33,6 +46,10 @@ dependencies {
 	implementation("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
+
+
+
+
 
 tasks.register<Test>("unitTest") {
 	description = "Runs unit tests."
@@ -71,4 +88,19 @@ tasks.jacocoTestReport {
 		csv.required.set(true)
 		html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
 	}
+
+	// Exclude classes or packages from the report
+	classDirectories.setFrom(
+			files(
+					classDirectories.files.map {
+						fileTree(it) {
+							exclude(
+									"id/ac/ui/cs/advprog/staffdashboard/service/PurchaseRequestServiceImpl.class",
+									"id/ac/ui/cs/advprog/staffdashboard/service/TopUpRequestServiceImpl.class"
+									// Add more exclusion patterns as needed
+							)
+						}
+					}
+			)
+	)
 }

@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.staffdashboard.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import id.ac.ui.cs.advprog.staffdashboard.model.Enum.RequestStatus;
 import id.ac.ui.cs.advprog.staffdashboard.model.PurchaseRequest;
 import id.ac.ui.cs.advprog.staffdashboard.repository.PurchaseRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
 
     public static String buyUrl;
     public static String reviewRatingUrl;
+    public static String sellUrl;
 
     @Value("${buy.url}")
     public void setTransactionUrl(String url){
@@ -31,6 +33,9 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
         reviewRatingUrl=url;
     }
 
+    @Value("${sell.url}")
+    public void setSellUrl(String url) {sellUrl=url;}
+
     @Autowired
     public void PurchaseRequestService(PurchaseRequestRepository purchaseRepository) {
         this.requestRepository = purchaseRepository;
@@ -38,7 +43,7 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
 
     @Override
     public PurchaseRequest updateStatus(PurchaseRequest request, String verdict,String token) {
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate= new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
 
@@ -55,7 +60,7 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
 
     @Override
     public Collection<PurchaseRequest> collectRequest(String token) throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate= new RestTemplate();
         ObjectMapper objectMapper = new ObjectMapper();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -85,7 +90,10 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
 
     @Override
     public void allowToReview(PurchaseRequest p, String verdict, String token) {
-        RestTemplate restTemplate = new RestTemplate();
+        if(!verdict.equals("SUCCESS")){
+            return;
+        }
+        RestTemplate restTemplate= new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -112,4 +120,54 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
         }
     }
 
+    @Override
+    public void createOrder(PurchaseRequest p, String verdict, String token) {
+        if (!verdict.equals("SUCCESS")) {
+            return;
+        }
+        /*
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        List<Map<String, Object>> listings = new ArrayList<>();
+
+        for (Map.Entry<String, Integer> entry : p.getListings().entrySet()) {
+            String listingId = entry.getKey();
+            Integer quantity = entry.getValue();
+
+            // Fetch listing details
+            String listingUrl = String.format(sellUrl +"/listing/get-by-id/%s", listingId);
+            ResponseEntity<Map> listingResponse = restTemplate.getForEntity(listingUrl, Map.class);
+
+            if (listingResponse.getStatusCode() == HttpStatus.OK && listingResponse.getBody() != null) {
+                Map<String, Object> listingDetails = listingResponse.getBody();
+
+                // Add listing to order
+                Map<String, Object> listing = new HashMap<>();
+                listing.put("id", listingId);
+                listing.put("name", listingDetails.get("name"));
+                listing.put("quantity", quantity);
+
+                listings.add(listing);
+            }
+        }
+
+        if (!listings.isEmpty()) {
+            Map<String, Object> order = new HashMap<>();
+            order.put("listings", listings);
+            order.put("authorUsername", p.getUsername());
+
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(order, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity("http://ip/order/create", requestEntity, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                System.out.println("Order created successfully");
+            } else {
+                System.out.println("Failed to create order: " + response.getBody());
+            }
+        } */
+
+    }
 }

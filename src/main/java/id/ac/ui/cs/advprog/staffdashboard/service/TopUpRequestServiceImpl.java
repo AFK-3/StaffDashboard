@@ -38,7 +38,7 @@ public class TopUpRequestServiceImpl extends RequestServiceImpl<TopupRequest> {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
-        ResponseEntity<String> response = restTemplate.exchange(String.format("%s/respond/%s/%s",paymentUrl,request.getId(),verdict), HttpMethod.PATCH, httpEntity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(String.format("%s/respond/%s/%s",paymentUrl,request.getId(),verdict), HttpMethod.PUT, httpEntity, String.class);
 
         System.out.println(response.getBody());
         this.requestRepository.delete(request);
