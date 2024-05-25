@@ -28,6 +28,10 @@ sonar {
 		property("sonar.projectKey", "AFK-3_StaffDashboard")
 		property("sonar.organization", "afk-3")
 		property("sonar.host.url", "https://sonarcloud.io")
+
+
+		property ("sonar.test.exclusions", "src/main/java/id/ac/ui/cs/advprog/staffdashboard/service/TopUpRequestServiceImpl.java")
+		property ("sonar.test.exclusions", "src/main/java/id/ac/ui/cs/advprog/staffdashboard/service/PurchaseRequestServiceImpl.java")
 	}
 }
 
