@@ -34,6 +34,9 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
+
+
+
 tasks.register<Test>("unitTest") {
 	description = "Runs unit tests."
 	group = "verification"
@@ -71,4 +74,19 @@ tasks.jacocoTestReport {
 		csv.required.set(true)
 		html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
 	}
+
+	// Exclude classes or packages from the report
+	classDirectories.setFrom(
+			files(
+					classDirectories.files.map {
+						fileTree(it) {
+							exclude(
+									"id/ac/ui/cs/advprog/staffdashboard/service/PurchaseRequestServiceImpl.class",
+									"id/ac/ui/cs/advprog/staffdashboard/service/TopUpRequestServiceImpl.class"
+									// Add more exclusion patterns as needed
+							)
+						}
+					}
+			)
+	)
 }

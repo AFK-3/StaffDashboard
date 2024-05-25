@@ -38,7 +38,7 @@ public class StaffDashboardController {
     @GetMapping("/")
     @ResponseBody
     public String staffDashboardPage(Model model) {
-        return "<h1>Testing If Im stupid or not</h1>";
+        return "<h1>Nothing Here Yet</h1>";
     }
 
     @PostMapping("/updateTopup/{topupId}/{Status}")

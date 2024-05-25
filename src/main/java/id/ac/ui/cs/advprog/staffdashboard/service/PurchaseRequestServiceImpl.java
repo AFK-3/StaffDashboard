@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.staffdashboard.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import id.ac.ui.cs.advprog.staffdashboard.model.Enum.RequestStatus;
 import id.ac.ui.cs.advprog.staffdashboard.model.PurchaseRequest;
 import id.ac.ui.cs.advprog.staffdashboard.repository.PurchaseRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
 
     public static String buyUrl;
     public static String reviewRatingUrl;
+    public static String sellUrl;
 
     @Value("${buy.url}")
     public void setTransactionUrl(String url){
@@ -31,6 +33,9 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
         reviewRatingUrl=url;
     }
 
+    @Value("${sell.url}")
+    public void setSellUrl(String url) {sellUrl=url;}
+
     @Autowired
     public void PurchaseRequestService(PurchaseRequestRepository purchaseRepository) {
         this.requestRepository = purchaseRepository;
@@ -38,7 +43,7 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
 
     @Override
     public PurchaseRequest updateStatus(PurchaseRequest request, String verdict,String token) {
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate= new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
 
@@ -55,7 +60,7 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
 
     @Override
     public Collection<PurchaseRequest> collectRequest(String token) throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate= new RestTemplate();
         ObjectMapper objectMapper = new ObjectMapper();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -85,7 +90,10 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
 
     @Override
     public void allowToReview(PurchaseRequest p, String verdict, String token) {
-        RestTemplate restTemplate = new RestTemplate();
+        if(!verdict.equals("SUCCESS")){
+            return;
+        }
+        RestTemplate restTemplate= new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -110,6 +118,14 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
             System.err.println("Error occurred while sending allow to review request: " + e.getMessage());
 
         }
+    }
+
+    @Override
+    public void createOrder(PurchaseRequest p, String verdict, String token){
+        if(!verdict.equals("SUCCESS")){
+            return;
+        }
+
     }
 
 }
