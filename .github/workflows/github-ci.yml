@@ -64,6 +64,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Install psql
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Start PostgreSQL Server
+        run: sudo -n service postgresql start
+
+      - name: Setup Password and createdb
+        run: |
+          pushd /
+          sudo -u postgres psql -U postgres -c "ALTER USER postgres WITH PASSWORD 'my-password';"
+          sudo -u postgres createdb staffdashboa
+          popd
+
       - name: Test with Gradle
         run: |
           ./gradlew check --info --stacktrace
