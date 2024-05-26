@@ -108,7 +108,7 @@ public class PurchaseRequestServiceImpl extends RequestServiceImpl<PurchaseReque
         try {
             // Send the POST request
             ResponseEntity<Void> response = restTemplate.exchange(
-                    reviewRatingUrl + "/allowUserToReview",
+                    reviewRatingUrl + "/review/allowUserToReview",
                     HttpMethod.POST,
                     requestEntity,
                     Void.class
