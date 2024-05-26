@@ -44,6 +44,10 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     needs: build
+    env:
+      JDBC_DATABASE_URL: "jdbc:postgresql://localhost:5432/staffdashboard"
+      JDBC_DATABASE_USERNAME: "postgres"
+      JDBC_DATABASE_PASSWORD: "my-password"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -54,8 +58,10 @@ jobs:
           distribution: "temurin"
           java-version: "21"
           cache: "gradle"
+
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
         with:
@@ -74,7 +80,7 @@ jobs:
         run: |
           pushd /
           sudo -u postgres psql -U postgres -c "ALTER USER postgres WITH PASSWORD 'my-password';"
-          sudo -u postgres createdb staffdashboa
+          sudo -u postgres createdb staffdashboard
           popd
 
       - name: Test with Gradle
@@ -82,7 +88,6 @@ jobs:
           ./gradlew check --info --stacktrace
           ./gradlew test
           ./gradlew jacocoTestReport
-      # (Optional) Add steps for generating coverage report and other post-test tasks
 
   publish:
     name: Publish Docker Image
